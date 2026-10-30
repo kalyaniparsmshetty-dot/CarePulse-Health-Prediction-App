@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import charts_block %}
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+{% block content %}
+<section class="card"><h2>Average measurements (all patients)</h2>
+{% if avg.count %}<table class="table"><tbody>
+<tr><th>Glucose</th><td>{{ '%.1f' | format(avg.glucose) }} mg/dL</td></tr>
+<tr><th>Haemoglobin</th><td>{{ '%.1f' | format(avg.haemoglobin) }} g/dL</td></tr>
+<tr><th>Cholesterol</th><td>{{ '%.1f' | format(avg.cholesterol) }} mg/dL</td></tr></tbody></table>
+<p class="hint">Across {{ avg.count }} record(s). Not clinical reference values.</p>
+{% else %}<p class="empty">No patient records yet.</p>{% endif %}</section>
+{{ charts_block(charts, [{'key':'status','title':'Assessment status'},{'key':'owners','title':'Patients per user'},{'key':'signups','title':'New accounts by day'}]) }}
+{% endblock %}

@@ -1,0 +1,125 @@
+
+{% extends 'base.html' %}
+{% from '_macros.html' import status_badge %}
+
+{% block title %}{{ p.full_name }}{% endblock %}
+{% block page_title %}Patient details{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="card-head">
+    <h2>{{ p.full_name }}</h2>
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('patients.edit', patient_id=p.id) }}">Edit</a>
+
+      <form method="post"
+            action="{{ url_for('patients.delete', patient_id=p.id) }}"
+            data-confirm="Delete {{ p.full_name }}? This cannot be undone.">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn-danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  <dl class="details">
+    <dt>Full Name</dt>
+    <dd>{{ p.full_name }}</dd>
+
+    <dt>Date of Birth</dt>
+    <dd>{{ p.dob | dmy }}</dd>
+
+    <dt>Email</dt>
+    <dd>{{ p.email }}</dd>
+
+    <dt>Glucose</dt>
+    <dd>{{ p.glucose | num }} mg/dL</dd>
+
+    <dt>Haemoglobin</dt>
+    <dd>{{ p.haemoglobin | num }} g/dL</dd>
+
+    <dt>Cholesterol</dt>
+    <dd>{{ p.cholesterol | num }} mg/dL</dd>
+
+    {% if current_user.role == 'admin' %}
+      <dt>Record owner</dt>
+      <dd>{{ p.owner_name }} ({{ p.owner_email }})</dd>
+    {% endif %}
+
+    <dt>Created</dt>
+    <dd>{{ p.created_at | timestamp }}</dd>
+
+    <dt>Last updated</dt>
+    <dd>{{ p.updated_at | timestamp }}</dd>
+  </dl>
+</section>
+
+<section class="card">
+  <h2>
+    <span class="tag tag-user">Entered by user</span>
+    Remarks
+  </h2>
+
+  {% if p.user_remarks %}
+    <p class="remark-text">{{ p.user_remarks }}</p>
+  {% else %}
+    <p class="empty">No remarks were entered.</p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>
+    <span class="tag tag-ai">AI-generated</span>
+    Remarks {{ status_badge(p.ai_status) }}
+  </h2>
+
+  {% if p.ai_status == 'completed' %}
+    <p class="remark-text">{{ p.ai_remarks }}</p>
+    <p class="hint">Generated {{ p.ai_assessed_at | timestamp }}.</p>
+
+  {% elif p.ai_status == 'outdated' %}
+    <div class="alert alert-warning">
+      The previous AI remarks may no longer apply because the patient measurements changed. Please request updated AI remarks.
+    </div>
+
+    <details>
+      <summary>Show previous remarks</summary>
+      <p class="remark-text muted-text">{{ p.ai_remarks }}</p>
+    </details>
+
+  {% elif p.ai_status == 'unavailable' %}
+    <p class="empty">
+      AI remarks are unavailable because no Gemini API key is configured.
+      No AI remarks were generated.
+    </p>
+
+  {% elif p.ai_status == 'failed' %}
+    <p class="empty">
+      The AI could not generate remarks. Your patient record is safe.
+      Use Retry assessment to try again.
+    </p>
+
+  {% else %}
+    <p class="empty">No AI remarks have been generated yet.</p>
+  {% endif %}
+
+  {% if p.ai_status != 'completed' %}
+    <form method="post"
+          action="{{ url_for('patients.assess', patient_id=p.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <button class="btn btn-primary" type="submit">
+        {{ 'Request updated remarks' if p.ai_status in ('outdated', 'pending') else 'Retry assessment' }}
+      </button>
+    </form>
+  {% endif %}
+
+  <p class="hint">{{ disclaimer }}</p>
+</section>
+
+<p>
+  <a href="{{ url_for('admin.patients') if current_user.role == 'admin' else url_for('patients.list_view') }}">
+    &larr; Back to patients
+  </a>
+</p>
+{% endblock %}
+

@@ -1,0 +1,7 @@
+{% extends 'auth_base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ code }} · {{ title }}</h1>
+<p class="muted">{{ message }}</p>
+<p><a class="btn btn-primary" href="{{ url_for('auth.index') }}">Go to start page</a></p>
+{% endblock %}

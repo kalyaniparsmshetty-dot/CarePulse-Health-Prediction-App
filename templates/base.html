@@ -1,0 +1,65 @@
+{% from '_macros.html' import icon %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Dashboard{% endblock %} · CarePulse</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/chart.umd.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body class="app-body">
+<div class="shell">
+  <aside class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="brand">{{ icon('pulse') }}<span>CarePulse</span></div>
+    {% if current_user and current_user.role == 'admin' %}
+    <nav>
+      <a href="{{ url_for('admin.dashboard') }}" class="{{ 'active' if request.endpoint == 'admin.dashboard' }}">{{ icon('home') }}Admin Dashboard</a>
+      <a href="{{ url_for('admin.patients') }}" class="{{ 'active' if request.endpoint == 'admin.patients' }}">{{ icon('list') }}All Patients</a>
+      <a href="{{ url_for('admin.users') }}" class="{{ 'active' if request.endpoint in ('admin.users','admin.user_detail') }}">{{ icon('users') }}User Management</a>
+      <a href="{{ url_for('admin.analytics') }}" class="{{ 'active' if request.endpoint == 'admin.analytics' }}">{{ icon('chart') }}Analytics</a>
+      <a href="{{ url_for('admin.audit_history') }}" class="{{ 'active' if request.endpoint == 'admin.audit_history' }}">{{ icon('shield') }}Login/Audit History</a>
+      <a href="{{ url_for('auth.profile') }}" class="{{ 'active' if request.endpoint == 'auth.profile' }}">{{ icon('user') }}Admin Profile</a>
+    </nav>
+    {% else %}
+    <nav>
+      <a href="{{ url_for('patients.dashboard') }}" class="{{ 'active' if request.endpoint == 'patients.dashboard' }}">{{ icon('home') }}Dashboard</a>
+      <a href="{{ url_for('patients.list_view') }}" class="{{ 'active' if request.endpoint in ('patients.list_view','patients.detail','patients.edit') }}">{{ icon('list') }}Patients</a>
+      <a href="{{ url_for('patients.create') }}" class="{{ 'active' if request.endpoint == 'patients.create' }}">{{ icon('plus') }}Add Patient</a>
+      <a href="{{ url_for('patients.analytics') }}" class="{{ 'active' if request.endpoint == 'patients.analytics' }}">{{ icon('chart') }}Reports / Analytics</a>
+      <a href="{{ url_for('auth.profile') }}" class="{{ 'active' if request.endpoint == 'auth.profile' }}">{{ icon('user') }}Profile</a>
+    </nav>
+    {% endif %}
+    <form method="post" action="{{ url_for('auth.logout') }}" class="logout-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="nav-logout">{{ icon('logout') }}Logout</button>
+    </form>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button type="button" class="btn btn-ghost menu-btn" id="menu-btn" aria-label="Open menu">{{ icon('menu') }}</button>
+      <div class="topbar-title"><span class="app-name">Health Prediction &amp; Patient Management</span><h1>{% block page_title %}{% endblock %}</h1></div>
+      <details class="profile-menu">
+        <summary>{{ current_user.full_name }} <small>({{ current_user.role }})</small></summary>
+        <div class="menu-pop">
+          <a href="{{ url_for('auth.profile') }}">Profile</a>
+          <form method="post" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit">Logout</button>
+          </form>
+        </div>
+      </details>
+    </header>
+    <main class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}<div class="alert alert-{{ category }}" role="status">{{ message }}</div>{% endfor %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+      <p class="footnote">{{ disclaimer }}</p>
+    </main>
+  </div>
+</div>
+</body>
+</html>

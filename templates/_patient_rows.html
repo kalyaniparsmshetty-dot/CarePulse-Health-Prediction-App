@@ -1,0 +1,80 @@
+
+{% from '_macros.html' import status_badge %}
+
+<div class="table-wrap">
+  <table class="table patient-table">
+    <thead>
+      <tr>
+        <th>Full Name</th>
+        <th>DOB</th>
+        <th>Email</th>
+        <th>Glucose</th>
+        <th>Haemoglobin</th>
+        <th>Cholesterol</th>
+        <th>Remarks</th>
+        {% if admin_mode %}<th>Owner</th>{% endif %}
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for p in rows %}
+      <tr>
+        <td class="patient-name">{{ p.full_name }}</td>
+        <td>{{ p.dob | dmy }}</td>
+        <td class="patient-email">{{ p.email }}</td>
+        <td>{{ p.glucose | num }} <small>mg/dL</small></td>
+        <td>{{ p.haemoglobin | num }} <small>g/dL</small></td>
+        <td>{{ p.cholesterol | num }} <small>mg/dL</small></td>
+
+        <td class="remarks-cell">
+          {% if p.ai_status == 'completed' %}
+            <span class="remark-badge remark-ready">Remarks Ready</span>
+          {% elif p.ai_status == 'pending' %}
+            <span class="remark-badge remark-pending">Remarks Pending</span>
+          {% elif p.ai_status == 'outdated' %}
+            <span class="remark-badge remark-outdated">Remarks Outdated</span>
+          {% elif p.ai_status == 'failed' %}
+            <span class="remark-badge remark-failed">Remarks Generation Failed</span>
+          {% elif p.ai_status == 'unavailable' %}
+            <span class="remark-badge remark-unavailable">AI Not Configured</span>
+          {% else %}
+            <span class="remark-badge remark-pending">Remarks Not Generated</span>
+          {% endif %}
+        </td>
+
+        {% if admin_mode %}
+        <td>
+          {{ p.owner_name }}<br>
+          <small>{{ p.owner_email }}</small>
+        </td>
+        {% endif %}
+
+        <td class="patient-actions">
+          <div class="actions">
+            <a class="btn btn-small"
+               href="{{ url_for('patients.detail', patient_id=p.id) }}">View</a>
+
+            <a class="btn btn-small"
+               href="{{ url_for('patients.edit', patient_id=p.id) }}">Edit</a>
+
+            <form method="post"
+                  action="{{ url_for('patients.delete', patient_id=p.id) }}"
+                  data-confirm="Delete {{ p.full_name }}? This cannot be undone.">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-small btn-danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+
+      {% else %}
+      <tr>
+        <td colspan="{{ 9 if admin_mode else 8 }}" class="empty">
+          No patients to show yet.
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

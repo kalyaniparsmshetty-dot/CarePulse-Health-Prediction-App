@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import pager %}
+{% block title %}Patients{% endblock %}
+{% block page_title %}{{ 'All Patients' if admin_mode else 'Patients' }}{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-head">
+    <form method="get" class="search-form" role="search">
+      <input type="search" name="q" value="{{ q }}" placeholder="Search by name or email{{ ' or owner' if admin_mode }}" aria-label="Search patients">
+      <button class="btn btn-primary" type="submit">Search</button>
+      {% if q %}<a class="btn btn-ghost" href="{{ url_for('admin.patients' if admin_mode else 'patients.list_view') }}">Clear</a>{% endif %}
+    </form>
+    {% if not admin_mode %}<a class="btn btn-primary" href="{{ url_for('patients.create') }}">Add Patient</a>{% endif %}
+  </div>
+  <p class="hint">{{ total }} record(s){% if q %} matching “{{ q }}”{% endif %}.</p>
+  {% set rows = patients %}
+  {% include '_patient_rows.html' %}
+  {{ pager(page, pages, 'admin.patients' if admin_mode else 'patients.list_view', q) }}
+</section>
+{% endblock %}

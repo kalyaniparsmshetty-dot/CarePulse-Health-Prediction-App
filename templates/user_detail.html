@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Account details{% endblock %}
+{% block page_title %}Account details{% endblock %}
+{% block content %}
+<section class="card"><h2>{{ u.full_name }}</h2>
+<dl class="details">
+<dt>Email</dt><dd>{{ u.email }}</dd><dt>Role</dt><dd>{{ u.role }}</dd>
+<dt>Status</dt><dd>{{ 'Active' if u.is_active else 'Deactivated' }}</dd>
+<dt>Created</dt><dd>{{ u.created_at | timestamp }}</dd><dt>Updated</dt><dd>{{ u.updated_at | timestamp }}</dd>
+<dt>Patient records</dt><dd>{{ patient_count }}</dd></dl>
+<form method="post" action="{{ url_for('admin.toggle_user', user_id=u.id) }}" data-confirm="{{ 'Deactivate' if u.is_active else 'Activate' }} this account?">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="back" value="/admin/users/{{ u.id }}">
+  <button class="btn {{ 'btn-danger' if u.is_active else 'btn-primary' }}" type="submit">{{ 'Deactivate account' if u.is_active else 'Activate account' }}</button></form>
+</section>
+<section class="card"><h2>Recent activity</h2>
+{% set rows = logins %}{% include '_audit_table.html' %}</section>
+<p><a href="{{ url_for('admin.users') }}">← Back to users</a></p>
+{% endblock %}

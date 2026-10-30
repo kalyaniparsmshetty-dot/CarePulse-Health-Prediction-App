@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import charts_block %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+{% block content %}
+{% set labels = ['Total Registered Users', 'Registered Users'] %}
+<div class="card-grid">
+  <div class="card stat"><span class="stat-label">Total Registered Users</span><strong>{{ stats.users }}</strong></div>
+  <div class="card stat"><span class="stat-label">Total Patient Records</span><strong>{{ stats.patients }}</strong></div>
+  <div class="card stat"><span class="stat-label">Completed AI Assessments</span><strong>{{ stats.completed }}</strong></div>
+  <div class="card stat"><span class="stat-label">Pending or Failed Assessments</span><strong>{{ stats.pending_failed }}</strong></div>
+</div>
+{{ charts_block(charts, [{'key':'status','title':'Assessment status'},{'key':'owners','title':'Patients per user'},{'key':'signups','title':'New accounts by day'}]) }}
+<section class="card"><div class="card-head"><h2>Recent account activity</h2><a class="btn btn-ghost" href="{{ url_for('admin.audit_history') }}">Full audit history</a></div>
+  {% include '_audit_table.html' %}
+</section>
+<section class="card"><h2>Manage</h2>
+  <p><a class="btn btn-primary" href="{{ url_for('admin.patients') }}">All patients</a>
+  <a class="btn btn-primary" href="{{ url_for('admin.users') }}">User management</a></p></section>
+{% endblock %}

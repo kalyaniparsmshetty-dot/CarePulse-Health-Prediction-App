@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import charts_block %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+{% if not ai_configured %}<div class="alert alert-info">AI assessments are unavailable until a Gemini API key is configured. Patient management works normally.</div>{% endif %}
+{% set labels = ['Total Patients', 'Recent Patients (last 7 days)'] %}
+{% include '_summary_cards.html' %}
+{{ charts_block(charts, [{'key':'glucose','title':'Glucose (mg/dL)'},{'key':'haemoglobin','title':'Haemoglobin (g/dL)'},{'key':'cholesterol','title':'Cholesterol (mg/dL)'},{'key':'status','title':'Assessment status'}]) }}
+<section class="card">
+  <div class="card-head"><h2>Recent patients</h2><a class="btn btn-primary" href="{{ url_for('patients.create') }}">Add Patient</a></div>
+  {% set rows = recent %}{% set admin_mode = false %}
+  {% include '_patient_rows.html' %}
+</section>
+{% endblock %}

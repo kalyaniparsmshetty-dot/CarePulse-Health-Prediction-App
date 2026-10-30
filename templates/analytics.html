@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import charts_block %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports / Analytics{% endblock %}
+{% block content %}
+{% set labels = ['Total Patients', 'Recent Patients (last 7 days)'] %}
+{% include '_summary_cards.html' %}
+<section class="card"><h2>Average measurements</h2>
+{% if avg.count %}
+<table class="table"><tbody>
+<tr><th>Glucose</th><td>{{ '%.1f' | format(avg.glucose) }} mg/dL</td></tr>
+<tr><th>Haemoglobin</th><td>{{ '%.1f' | format(avg.haemoglobin) }} g/dL</td></tr>
+<tr><th>Cholesterol</th><td>{{ '%.1f' | format(avg.cholesterol) }} mg/dL</td></tr>
+</tbody></table>
+<p class="hint">Averages of your {{ avg.count }} saved record(s). They are not clinical reference values.</p>
+{% else %}<p class="empty">No data yet. <a href="{{ url_for('patients.create') }}">Add a patient</a> to see analytics.</p>{% endif %}
+</section>
+{{ charts_block(charts, [{'key':'glucose','title':'Glucose (mg/dL)'},{'key':'haemoglobin','title':'Haemoglobin (g/dL)'},{'key':'cholesterol','title':'Cholesterol (mg/dL)'},{'key':'status','title':'Assessment status'}]) }}
+{% endblock %}

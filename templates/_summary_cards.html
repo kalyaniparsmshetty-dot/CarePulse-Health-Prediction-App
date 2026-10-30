@@ -1,0 +1,6 @@
+<div class="card-grid">
+  <div class="card stat"><span class="stat-label">{{ labels[0] }}</span><strong>{{ stats.total if stats.total is defined else stats.patients }}</strong></div>
+  <div class="card stat"><span class="stat-label">{{ labels[1] }}</span><strong>{{ stats.recent if stats.recent is defined else stats.users }}</strong></div>
+  <div class="card stat"><span class="stat-label">Completed Assessments</span><strong>{{ stats.completed }}</strong></div>
+  <div class="card stat"><span class="stat-label">Pending or Failed Assessments</span><strong>{{ stats.pending_failed }}</strong></div>
+</div>

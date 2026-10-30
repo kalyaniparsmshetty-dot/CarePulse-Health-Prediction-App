@@ -1,0 +1,15 @@
+{% extends 'auth_base.html' %}
+{% from '_macros.html' import password_input %}
+{% block title %}Admin sign in{% endblock %}
+{% block content %}
+<h1>Admin Login</h1>
+<p class="muted">Restricted to administrator accounts.</p>
+<form method="post" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="field"><label for="email">Administrator email</label>
+    <input type="email" id="email" name="email" value="{{ email }}" autocomplete="email" required></div>
+  {{ password_input('password', 'Password', {}) }}
+  <button class="btn btn-primary btn-block" type="submit">Sign In as Admin</button>
+</form>
+<p class="auth-links"><a href="{{ url_for('auth.login') }}">Back to User Login</a></p>
+{% endblock %}

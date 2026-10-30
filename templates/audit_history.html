@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Audit history{% endblock %}
+{% block page_title %}Login / Audit History{% endblock %}
+{% block content %}
+<section class="card">
+  <form method="get" class="search-form">
+    <label for="event" class="sr-only">Event type</label>
+    <select id="event" name="event"><option value="">All events</option>
+      {% for t in types %}<option value="{{ t }}" {{ 'selected' if t == event }}>{{ t }}</option>{% endfor %}</select>
+    <button class="btn btn-primary" type="submit">Filter</button>
+  </form>
+  <p class="hint">Showing the latest 200 events. Passwords, hashes and session tokens are never recorded.</p>
+  {% include '_audit_table.html' %}
+</section>
+{% endblock %}

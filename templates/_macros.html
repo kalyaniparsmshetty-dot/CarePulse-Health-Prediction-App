@@ -1,0 +1,53 @@
+{% macro icon(name) -%}
+<svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{%- if name == 'home' %}<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>
+{%- elif name == 'users' %}<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.5c2 .7 3.5 2.6 3.5 5.5"/>
+{%- elif name == 'plus' %}<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>
+{%- elif name == 'chart' %}<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>
+{%- elif name == 'user' %}<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/>
+{%- elif name == 'logout' %}<path d="M9 21H5V3h4M16 17l5-5-5-5M21 12H9"/>
+{%- elif name == 'list' %}<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+{%- elif name == 'shield' %}<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>
+{%- elif name == 'menu' %}<path d="M4 6h16M4 12h16M4 18h16"/>
+{%- elif name == 'search' %}<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/>
+{%- elif name == 'pulse' %}<path d="M3 12h4l3-8 4 16 3-8h4"/>
+{%- endif %}</svg>
+{%- endmacro %}
+
+{% macro field_error(errors, name) -%}
+{% if errors.get(name) %}<div class="field-error" id="err-{{ name }}" role="alert">{{ errors[name] }}</div>{% endif %}
+{%- endmacro %}
+
+{% macro status_badge(status) -%}
+<span class="badge badge-{{ status }}">{{ status_labels.get(status, status) }}</span>
+{%- endmacro %}
+
+{% macro password_input(name, label, errors, autocomplete='current-password') -%}
+<div class="field">
+  <label for="{{ name }}">{{ label }}</label>
+  <div class="input-group">
+    <input type="password" id="{{ name }}" name="{{ name }}" autocomplete="{{ autocomplete }}" required class="{{ 'invalid' if errors.get(name) }}">
+    <button type="button" class="btn btn-ghost toggle-password" data-target="{{ name }}" aria-label="Show or hide {{ label }}">Show</button>
+  </div>
+  {{ field_error(errors, name) }}
+</div>
+{%- endmacro %}
+
+{% macro pager(page, pages, endpoint, q) -%}
+{% if pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  {% if page > 1 %}<a class="btn btn-ghost" href="{{ url_for(endpoint, q=q, page=page-1) }}">Previous</a>{% endif %}
+  <span>Page {{ page }} of {{ pages }}</span>
+  {% if page < pages %}<a class="btn btn-ghost" href="{{ url_for(endpoint, q=q, page=page+1) }}">Next</a>{% endif %}
+</nav>
+{% endif %}
+{%- endmacro %}
+
+{% macro charts_block(charts, names) -%}
+<script type="application/json" id="chart-data">{{ charts | tojson }}</script>
+<div class="chart-grid">
+{% for n in names %}
+  <section class="card chart-card"><h3>{{ n.title }}</h3><div class="chart-box"><canvas data-chart="{{ n.key }}" aria-label="{{ n.title }}" role="img"></canvas></div></section>
+{% endfor %}
+</div>
+{%- endmacro %}

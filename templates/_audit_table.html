@@ -1,0 +1,11 @@
+<div class="table-wrap"><table class="table">
+<thead><tr><th>Time</th><th>Event</th><th>User</th><th>Email attempted</th><th>Result</th><th>Details</th></tr></thead>
+<tbody>
+{% for r in (rows if rows is defined else activity) %}
+<tr><td>{{ r.created_at | timestamp }}</td><td>{{ r.event_type }}</td>
+<td>{% if r.user_id %}#{{ r.user_id }}{% if r.full_name %} {{ r.full_name }}{% endif %}{% else %}—{% endif %}</td>
+<td>{{ r.email_attempted or '—' }}</td>
+<td><span class="badge {{ 'badge-completed' if r.success else 'badge-failed' }}">{{ 'Success' if r.success else 'Failure' }}</span></td>
+<td>{{ r.details or '—' }}</td></tr>
+{% else %}<tr><td colspan="6" class="empty">No events yet.</td></tr>{% endfor %}
+</tbody></table></div>

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field_error %}
+{% block title %}{{ 'Edit patient' if mode == 'edit' else 'Add patient' }}{% endblock %}
+{% block page_title %}{{ 'Edit Patient' if mode == 'edit' else 'Add Patient' }}{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <form method="post" novalidate id="patient-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="field"><label for="full_name">1. Full Name</label>
+      <input type="text" id="full_name" name="full_name" value="{{ values.full_name }}" placeholder="e.g. Robyn Pears" maxlength="120" required class="{{ 'invalid' if errors.get('full_name') }}">
+      {{ field_error(errors, 'full_name') }}</div>
+
+    <div class="field"><label for="dob">2. Date of Birth (DOB)</label>
+      <input type="text" id="dob" name="dob" value="{{ values.dob }}" placeholder="DD/MM/YYYY" inputmode="numeric" maxlength="10" required class="{{ 'invalid' if errors.get('dob') }}">
+      <div class="hint">Format: DD/MM/YYYY, for example 28/01/1960.</div>
+      {{ field_error(errors, 'dob') }}</div>
+
+    <div class="field"><label for="email">3. Email</label>
+      <input type="email" id="email" name="email" value="{{ values.email }}" placeholder="name@example.com" required class="{{ 'invalid' if errors.get('email') }}">
+      {{ field_error(errors, 'email') }}</div>
+
+    <div class="field"><label for="glucose">4. Glucose <span class="unit">(mg/dL)</span></label>
+      <input type="number" id="glucose" name="glucose" value="{{ values.glucose }}" step="any" min="20" max="1000" placeholder="e.g. 94" required class="{{ 'invalid' if errors.get('glucose') }}">
+      <div class="hint">Accepted input range: 20–1000 mg/dL (an input limit, not a medical threshold).</div>
+      {{ field_error(errors, 'glucose') }}</div>
+
+    <div class="field"><label for="haemoglobin">5. Haemoglobin <span class="unit">(g/dL)</span></label>
+      <input type="number" id="haemoglobin" name="haemoglobin" value="{{ values.haemoglobin }}" step="any" min="1" max="30" placeholder="e.g. 13.5" required class="{{ 'invalid' if errors.get('haemoglobin') }}">
+      <div class="hint">Accepted input range: 1–30 g/dL.</div>
+      {{ field_error(errors, 'haemoglobin') }}</div>
+
+    <div class="field"><label for="cholesterol">6. Cholesterol <span class="unit">(mg/dL)</span></label>
+      <input type="number" id="cholesterol" name="cholesterol" value="{{ values.cholesterol }}" step="any" min="50" max="1000" placeholder="e.g. 180" required class="{{ 'invalid' if errors.get('cholesterol') }}">
+      <div class="hint">Accepted input range: 50–1000 mg/dL.</div>
+      {{ field_error(errors, 'cholesterol') }}</div>
+
+    <div class="field"><label for="remarks">7. Remarks <span class="unit">(optional)</span></label>
+      <textarea id="remarks" name="remarks" rows="4" maxlength="1000" placeholder="Your own notes about this patient (optional)" class="{{ 'invalid' if errors.get('remarks') }}">{{ values.remarks }}</textarea>
+      <div class="hint">These are <strong>your</strong> remarks. After saving, a separate AI-generated assessment may be added{% if not ai_configured %} (currently unavailable: no Gemini API key is configured){% endif %}. It is stored and shown separately from your remarks.</div>
+      {{ field_error(errors, 'remarks') }}</div>
+
+    <p class="hint">{{ disclaimer }}</p>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">{{ 'Save changes' if mode == 'edit' else 'Save patient' }}</button>
+      <a class="btn btn-ghost" href="{{ url_for('patients.detail', patient_id=patient.id) if patient else url_for('patients.list_view') }}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

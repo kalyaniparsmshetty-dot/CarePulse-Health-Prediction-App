@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% from '_macros.html' import field_error %}
+{% block title %}Profile{% endblock %}
+{% block page_title %}{{ 'Admin Profile' if current_user.role == 'admin' else 'Profile' }}{% endblock %}
+{% block content %}
+<section class="card form-card">
+  <form method="post" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field"><label for="full_name">Full Name</label>
+      <input type="text" id="full_name" name="full_name" value="{{ request.form.get('full_name', current_user.full_name) }}" required class="{{ 'invalid' if errors.get('full_name') }}">
+      {{ field_error(errors, 'full_name') }}</div>
+    <div class="field"><label>Email</label><input type="text" value="{{ current_user.email }}" disabled></div>
+    <div class="field"><label>Role</label><input type="text" value="{{ current_user.role }}" disabled></div>
+    <div class="field"><label>Member since</label><input type="text" value="{{ current_user.created_at | timestamp }}" disabled></div>
+    <h3>Change password (optional)</h3>
+    <div class="field"><label for="current_password">Current password</label><input type="password" id="current_password" name="current_password" autocomplete="current-password">{{ field_error(errors, 'current_password') }}</div>
+    <div class="field"><label for="new_password">New password</label><input type="password" id="new_password" name="new_password" autocomplete="new-password">{{ field_error(errors, 'new_password') }}</div>
+    <div class="field"><label for="confirm_password">Confirm new password</label><input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password"></div>
+    <button class="btn btn-primary" type="submit">Save profile</button>
+  </form>
+</section>
+{% endblock %}
