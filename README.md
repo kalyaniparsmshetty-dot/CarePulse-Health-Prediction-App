@@ -1,117 +1,442 @@
-# Health Prediction & Patient Management System
+# CarePulse – Health Prediction & Patient Management System
 
-A Flask web app for managing patient records (glucose, haemoglobin, cholesterol), with a user dashboard,
-a separate admin dashboard and optional AI-written informational remarks from Google Gemini.
+CarePulse is a Python Flask web application for managing patient records, including glucose, haemoglobin and cholesterol measurements. It provides patient management, user and administrator dashboards, data analytics, input validation, duplicate detection and optional AI-generated informational remarks using the Google Gemini API.
 
-> **AI-generated information is for educational purposes only and is not a medical diagnosis. Consult a qualified healthcare professional for medical advice.**
-> This is a learning/evaluation project. It is **not** production-ready and **not** HIPAA-compliant.
+> **Medical Disclaimer:** AI-generated information is for educational and informational purposes only. It is not a medical diagnosis or a substitute for professional medical advice. Always consult a qualified healthcare professional.
 
-## Features
-- Register, sign in, sign out (hashed passwords, sessions, CSRF protection). Public sign-up always creates the `user` role.
-- Separate **Admin Login**; first admin is created only from the command line.
-- Patient CRUD with the seven fields in this order: Full Name, DOB, Email, Glucose, Haemoglobin, Cholesterol, **Remarks** (directly below Cholesterol).
-- Dates are shown as **DD/MM/YYYY** and stored as ISO `YYYY-MM-DD`; impossible and future dates are rejected.
-- Search by name or email; dashboard cards and Chart.js charts calculated from real database rows.
-- Admin: statistics, all patients (with owner), user management (activate/deactivate), audit history.
-- AI assessment (Gemini) using only age + the three measurements; Retry, "outdated" marking when measurements change.
-- Works without a Gemini key (AI shows "unavailable"; everything else works).
+This is a learning and evaluation project. It is not production-ready and is not HIPAA-compliant.
 
-## Tech stack
-Python 3.10+, Flask, Flask-WTF (CSRF), SQLite, HTML/CSS/JavaScript (own CSS, no CDN), Chart.js (bundled in `static/js`), google-genai, pytest.
+---
 
-## Folder structure
+## 1. Features
+
+### User Management
+
+* User registration, login and logout.
+* Password hashing and session management.
+* CSRF protection.
+* Separate administrator login.
+* Public registration creates only the regular user role.
+* Administrator account creation through a command-line command.
+
+### Patient Management
+
+* Create, Read, Update and Delete (CRUD) patient records.
+* Patient information includes:
+
+  * Full Name
+  * Date of Birth
+  * Email Address
+  * Glucose
+  * Haemoglobin
+  * Cholesterol
+  * Remarks
+* Search patient records by name or email.
+* Patient details and assessment history.
+
+### Input Validation
+
+* Email format validation.
+* Date of birth validation.
+* Impossible calendar dates are rejected.
+* Future dates of birth are rejected.
+* Numeric blood test values are validated.
+* Clear validation messages are displayed when information is invalid.
+
+### Duplicate Detection
+
+* The application checks existing patient records before creating a new entry.
+* Identical duplicate records for the same user are rejected.
+* A duplicate warning is displayed instead of creating another copy.
+* The supplied-record import script also uses an import key to identify duplicate records and prevent repeated imports.
+
+### Dashboard and Analytics
+
+* Separate user and administrator dashboards.
+* Patient statistics calculated from database records.
+* Visual charts using Chart.js.
+* Patient measurement summaries.
+* Administrator statistics and user management.
+* Audit history.
+
+### AI Integration
+
+* Optional integration with the Google Gemini API.
+* AI-generated informational health assessment remarks.
+* Assessment based on age, glucose, haemoglobin and cholesterol values.
+* Retry functionality for failed assessments.
+* Assessment status tracking, including pending, failed and outdated states.
+* The application continues to support patient management when the AI service is unavailable.
+
+---
+
+## 2. Technology Stack
+
+| Component         | Technology            |
+| ----------------- | --------------------- |
+| Backend           | Python, Flask         |
+| Frontend          | HTML, CSS, JavaScript |
+| Database          | SQLite                |
+| AI Integration    | Google Gemini API     |
+| Charts            | Chart.js              |
+| Form Security     | Flask-WTF, CSRF       |
+| Testing           | Pytest                |
+| Password Security | PBKDF2-SHA256         |
+
+---
+
+## 3. Project Structure
+
+```text
+CarePulse-Health-Prediction-App/
+│
+├── app.py
+├── auth_utils.py
+├── config.py
+├── validation.py
+├── utils.py
+├── requirements.txt
+├── pytest.ini
+├── README.md
+├── .gitignore
+├── .env.example
+│
+├── database/
+│   ├── db.py
+│   └── schema.sql
+│
+├── routes/
+│   ├── auth.py
+│   ├── patients.py
+│   └── admin.py
+│
+├── services/
+│   ├── ai_service.py
+│   └── patient_service.py
+│
+├── scripts/
+│   ├── supplied_records.py
+│   ├── validate_records.py
+│   └── import_valid_records.py
+│
+├── templates/
+├── static/
+├── tests/
+│
+└── docs/
+    ├── Evaluation_checklist.md
+    └── Github_publishing.md
 ```
-app.py            app factory, error handlers, CLI commands (init-db, create-admin)
-config.py         settings from environment variables
-validation.py     strict date/email/number validation
-auth_utils.py     sessions, role decorators, password hashing, audit log
-utils.py          date/time helpers
-routes/           auth.py, patients.py, admin.py
-services/         ai_service.py (Gemini), patient_service.py (assessment + statistics)
-database/         schema.sql, db.py
-scripts/          validate_records.py, import_valid_records.py, supplied_records.py
-templates/ static/ tests/ docs/
-```
 
-## Setup on Windows (PowerShell)
+---
+
+## 4. Requirements
+
+* Python 3.10 or later.
+* Windows, macOS or Linux.
+* pip package manager.
+* Google Gemini API key (optional, for AI assessments).
+
+---
+
+## 5. Installation on Windows
+
+Open PowerShell and navigate to the downloaded or cloned project folder.
+
+Create a virtual environment:
+
 ```powershell
-cd health-prediction-app
 py -m venv venv
-.\venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
-Copy-Item .env.example .env
 ```
-If PowerShell blocks activation:
+
+Activate the virtual environment:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks activation, run:
+
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\venv\Scripts\Activate.ps1
 ```
 
-## Initialise the database
+Install the required packages:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Create your local environment configuration:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+---
+
+## 6. Database Initialization
+
+Initialize the database using:
+
 ```powershell
 python -m flask --app app init-db
 ```
-Safe to repeat: it only creates missing tables and never deletes data. The database file is `instance\health_app.db`.
 
-## Create the first administrator (secure)
+The database initialization command creates missing tables without deleting existing data.
+
+The local database is stored in:
+
+```text
+instance/health_app.db
+```
+
+The local database is excluded from GitHub using `.gitignore`.
+
+---
+
+## 7. Create the Administrator Account
+
+Create the first administrator using:
+
 ```powershell
 python -m flask --app app create-admin
 ```
-You are prompted for name, email and password (hidden). No admin password exists in the source code or docs.
-It refuses duplicates. Roles cannot be changed from the web app.
 
-## Run the app
+The application prompts for:
+
+* Administrator name
+* Email address
+* Password
+
+The password is entered securely through the command line and is not stored in the source code.
+
+---
+
+## 8. Run the Application
+
+Start the Flask application:
+
 ```powershell
 python app.py
 ```
-Open **http://127.0.0.1:5000** in your browser.
-- Users: click *Create an account*, then sign in.
-- Admins: open **http://127.0.0.1:5000/admin/login** (a regular user's credentials are refused there).
 
-## Configure Gemini (optional)
-1. Create a key in Google AI Studio.
-2. Open `.env` and set `GEMINI_API_KEY=` to your key (keep `.env` private; it is git-ignored).
-3. Restart the app. New patients get an assessment after saving; use **Retry assessment** if it fails.
+Open the following address in your browser:
 
-Without a key the app starts normally and patients show "AI not configured". Only age and the three measurements are sent
-(never name, email, exact DOB, or your remarks). Assessment runs during the save request (up to `AI_TIMEOUT_SECONDS`, default 20).
+http://127.0.0.1:5000
 
-## Run the tests
+### User Login
+
+Users can register through the Create an Account option and then sign in.
+
+### Administrator Login
+
+Open:
+
+http://127.0.0.1:5000/admin/login
+
+Regular user credentials cannot be used for administrator login.
+
+---
+
+## 9. Configure Google Gemini AI (Optional)
+
+CarePulse supports optional AI-generated assessment remarks using the Google Gemini API.
+
+To configure it:
+
+1. Create an API key using Google AI Studio.
+2. Open your local `.env` file.
+3. Add your API key to the `GEMINI_API_KEY` setting.
+4. Set the Gemini model using the `GEMINI_MODEL` setting.
+5. Save the file and restart the application.
+
+Example configuration:
+
+```env
+GEMINI_API_KEY=your_api_key_here
+GEMINI_MODEL=gemini-3.8-flash
+SECRET_KEY=replace_with_a_secure_secret
+SESSION_COOKIE_SECURE=false
+```
+
+**Never upload your actual `.env` file or API key to GitHub.**
+
+The AI service receives only the relevant assessment information, such as age and the three blood test measurements. Patient names, email addresses and exact dates of birth are not sent.
+
+The application handles AI service errors, including rate limits, temporary service unavailability and timeouts. Patient records can still be managed when AI assessment is unavailable.
+
+AI-generated remarks are informational only and must not be treated as medical diagnoses.
+
+---
+
+## 10. Automated Testing
+
+The application uses Pytest for automated testing.
+
+Run all tests using:
+
+```powershell
+python -m pytest -v
+```
+
+Alternatively:
+
 ```powershell
 python -m pytest -q
 ```
-Tests use a temporary database and a mocked AI (no internet, no cost). One optional live-Gemini test is marked `live` and skipped.
 
-## Validate and import the supplied records
+The test suite covers application functionality, including:
+
+* Input validation.
+* Patient CRUD operations.
+* Database operations.
+* Authentication and authorization.
+* Duplicate detection.
+* AI-related functionality and error handling.
+
+Tests use a temporary database and mocked AI responses, so ordinary tests do not require a live Gemini API request.
+
+One optional live-Gemini test may be skipped.
+
+In a previous test run, the project completed with **79 passed and 1 skipped**. Results may vary after code changes.
+
+---
+
+## 11. Validate the Supplied Patient Records
+
+The assignment provides ten patient records.
+
+Run the validation script:
+
 ```powershell
 python -m scripts.validate_records
 ```
-Reports each of the 10 records as VALID/INVALID with reasons (evaluation date 28/10/2026; use `--today now` for your computer's date).
-Source dates are `DD.MM.YYYY`. Expected: records **2, 4, 8 invalid**; 7 valid.
+
+The script checks the supplied records and reports whether each record is valid or invalid, including the reason for any validation failure.
+
+The evaluation date used for the supplied records is 28/10/2026.
+
+The invalid records are:
+
+| Record | Patient     | Reason                                 |
+| ------ | ----------- | -------------------------------------- |
+| 2      | John Hunter | Invalid email address                  |
+| 4      | Peter Larry | Impossible date: 31 November 2001      |
+| 8      | Kris Wu     | Future date of birth and invalid email |
+
+Record 6 is an exact duplicate of record 1.
+
+### Import Valid Records
+
+After creating a user account, import valid unique records using:
 
 ```powershell
 python -m scripts.import_valid_records --owner-email you@example.com
 ```
-Imports only valid records into an existing user's account. Never runs at startup. **Duplicate rule:** each record has an import key
-(hash of lower-cased name, ISO DOB, lower-cased email and measurements); a record whose key already exists for that owner is skipped and reported.
-So rows 1 and 6 (identical) import once, and repeating the import adds nothing. Expected first run: 6 imported, 3 invalid skipped, 1 duplicate skipped.
-Ordinary patients added in the web form are never de-duplicated.
 
-## Design decisions
-- Units: glucose mg/dL, haemoglobin g/dL, cholesterol mg/dL. Input limits (not medical thresholds): 20–1000, 1–30, 50–1000.
-- Admins can view, edit, delete and re-assess any patient (audited); they cannot add patients to other users.
-- Other users' records return 404 (existence is not revealed).
-- "Pending or Failed" counts every patient whose AI status is not "completed" (not assessed, failed, unavailable, outdated).
-- "Recent Patients" = added in the last 7 days.
-- Timestamps are stored and shown in UTC.
+Replace `you@example.com` with the email address of the user account that should own the imported records.
 
-## Security notes
-Password hashing (PBKDF2-SHA256), CSRF tokens, parameterised SQL, escaped output, strict Content-Security-Policy, role checks on the server,
-audit log without secrets, `HttpOnly`/`SameSite=Lax` cookies. For real deployment use HTTPS and set `SESSION_COOKIE_SECURE=true`.
+Expected first import:
 
-## Known limitations
-No login rate-limiting or lockout, no email verification or password reset, no pagination on audit history (latest 200 shown),
-AI call is synchronous, live Gemini calls were not tested in the build environment, not independently security-audited.
+* 6 valid unique records imported.
+* 3 invalid records skipped.
+* 1 duplicate record skipped.
 
-## Publish to GitHub
-See `docs/GITHUB_PUBLISHING.md`.
+The import script does not run automatically when the application starts.
+
+---
+
+## 12. Design Decisions
+
+### Measurement Units
+
+| Measurement | Unit  |
+| ----------- | ----- |
+| Glucose     | mg/dL |
+| Haemoglobin | g/dL  |
+| Cholesterol | mg/dL |
+
+The application uses input validation limits to reject unreasonable or incorrectly entered numeric values. These limits are software validation rules, not medical diagnostic thresholds.
+
+### Date Handling
+
+* Dates are displayed in DD/MM/YYYY format.
+* Dates are stored in ISO YYYY-MM-DD format.
+* Impossible and future dates are rejected.
+
+### Access Control
+
+* Users can access their own patient records.
+* Administrators have access to administrative patient management features.
+* Unauthorized access to another user's records is restricted.
+* Administrative actions are recorded in the audit log.
+
+### Dashboard Statistics
+
+* Dashboard statistics are calculated from database records.
+* Recent Patients represents records added during the last seven days.
+* Pending or Failed includes assessments that are not completed.
+* Timestamps are stored and displayed in UTC.
+
+---
+
+## 13. Security Features
+
+The application includes:
+
+* Password hashing using PBKDF2-SHA256.
+* CSRF protection.
+* Session-based authentication.
+* Role-based access control.
+* Parameterized SQL queries.
+* Escaped output.
+* Content Security Policy.
+* HTTP-only and SameSite cookie settings.
+* Audit logging without storing secrets.
+* Environment-based configuration.
+
+For a real deployment, HTTPS should be enabled and:
+
+```env
+SESSION_COOKIE_SECURE=true
+```
+
+should be configured.
+
+---
+
+## 14. Known Limitations
+
+* No login rate limiting or account lockout.
+* No email verification.
+* No password reset functionality.
+* Audit history displays only the latest 200 entries.
+* AI assessment is synchronous.
+* Live Gemini API availability depends on the external service and account limits.
+* The application has not undergone an independent security audit.
+* The application is not intended for real clinical use.
+
+---
+
+## 15. Repository and Documentation
+
+The project source code is available on GitHub:
+
+https://github.com/kalyaniparsmshetty-dot/CarePulse-Health-Prediction-App
+
+Supporting documentation is available in the `docs` folder:
+
+* `Evaluation_checklist.md`
+* `Github_publishing.md`
+
+---
+
+## 16. Conclusion
+
+CarePulse demonstrates the development of a Python Flask web application that combines patient record management, database operations, input validation, duplicate detection, dashboard analytics, automated testing and external AI integration.
+
+The project demonstrates practical application development skills using Python, Flask, SQLite, HTML, CSS, JavaScript and the Google Gemini API.
+
+**CarePulse is developed as a learning and evaluation project to demonstrate Python programming, web application development, database management and AI integration.**
